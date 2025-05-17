@@ -1,0 +1,17 @@
+{% extends 'mainapp/base.html' %}
+
+{% block title %}Communication LTD - Verify Reset Code{% endblock %}
+
+{% block content %}
+<h1>Enter Reset Code</h1>
+
+{% if error %}
+    <p class="error-message">{{ error }}</p>
+{% endif %}
+
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="reset_code" placeholder="Enter reset code" required><br>
+    <button type="submit">Verify</button>
+</form>
+{% endblock %}

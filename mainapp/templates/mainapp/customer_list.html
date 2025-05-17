@@ -1,0 +1,15 @@
+{% extends 'mainapp/base.html' %}
+
+{% block title %}Communication LTD - Customer List{% endblock %}
+
+{% block content %}
+<h1>Customer List</h1>
+
+<ul>
+    {% for customer in customers %}
+        <li>{{ customer.first_name }} {{ customer.last_name }} - {{ customer.id_number }}</li>
+    {% empty %}
+        <li>No customers found.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'mainapp/base.html' %}
+
+{% block title %}Communication LTD - Home{% endblock %}
+
+{% block content %}
+<h1>Welcome to</h1>
+<h1>Communication LTD</h1>
+<div class="button-group">
+    <a href="{% url 'login' %}" class="button">Login</a>
+    <a href="{% url 'register' %}" class="button">Register</a>
+</div>
+{% endblock %}

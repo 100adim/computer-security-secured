@@ -1,0 +1,15 @@
+{% extends 'mainapp/base.html' %}
+
+{% block title %}Communication LTD - System{% endblock %}
+
+{% block content %}
+<h1>Welcome to the system</h1>
+
+{% if username %}
+    <p>Hello, {{ username }}!</p>
+{% endif %}
+
+{% if new_customer %}
+    <p>New customer added: {{ new_customer.first_name }} {{ new_customer.last_name }}</p>
+{% endif %}
+{% endblock %}
