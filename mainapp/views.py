@@ -12,6 +12,8 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from datetime import timedelta
 from .models import User, Customer
+from django.db import IntegrityError
+
 
 login_attempts = {}
 
