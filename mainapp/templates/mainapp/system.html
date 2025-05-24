@@ -1,15 +1,24 @@
 {% extends 'mainapp/base.html' %}
 
-{% block title %}Communication LTD - System{% endblock %}
+{% block title %}System{% endblock %}
 
 {% block content %}
-<h1>Welcome to the system</h1>
+<div style="text-align: center; padding: 50px;">
+    <h1>Welcome to the system</h1>
 
-{% if username %}
-    <p>Hello, {{ username }}!</p>
-{% endif %}
+    {% if username %}
+        <p>Hello, {{ username }}!</p>
+    {% endif %}
 
-{% if new_customer %}
-    <p>New customer added: {{ new_customer.first_name }} {{ new_customer.last_name }}</p>
-{% endif %}
+    {% if new_customer %}
+        <p style="color: green;">
+             New customer added: {{ new_customer.first_name }} {{ new_customer.last_name }}
+        </p>
+    {% endif %}
+
+    <div style="margin-top: 40px;">
+        <a href="{% url 'add_customer' %}" class="button">➕ Add Customer</a>
+        <a href="{% url 'customer_list' %}" class="system-button">📋 Customer List</a>
+    </div>
+</div>
 {% endblock %}
