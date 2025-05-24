@@ -14,7 +14,6 @@ from datetime import timedelta
 from .models import User, Customer
 from django.db import IntegrityError
 
-
 login_attempts = {}
 
 def load_password_config():
@@ -22,7 +21,12 @@ def load_password_config():
         return json.load(config_file)
 
 def home(request):
-    return render(request, 'mainapp/home.html')
+    username = request.session.get("username")
+    new_customer = request.session.pop("new_customer", None)
+    return render(request, 'mainapp/system.html', {
+        "username": username,
+        "new_customer": new_customer
+    })
 
 def is_password_valid(password):
     config = load_password_config()
@@ -103,7 +107,9 @@ def login_user(request):
 
         if new_hash == user.password_hash:
             login_attempts.pop(username, None)
-            return render(request, 'mainapp/system.html', {'username': html.escape(username)})
+            request.session.flush()
+            request.session['username'] = username
+            return redirect('home')
         else:
             attempts, lock_until = login_attempts.get(username, (0, None))
             attempts += 1
@@ -115,24 +121,56 @@ def login_user(request):
     return render(request, 'mainapp/login.html')
 
 def add_customer(request):
-    if request.method == 'POST':
-        first_name = html.escape(request.POST.get('first_name'))
-        last_name = html.escape(request.POST.get('last_name'))
-        id_number = html.escape(request.POST.get('id_number'))
+    username = request.session.get('username')
+    if not username:
+        return redirect('login')
 
-        customer = Customer.objects.create(
-            first_name=first_name,
-            last_name=last_name,
-            id_number=id_number
-        )
+    if request.method == "POST":
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        id_number = request.POST.get("id_number")
 
-        return render(request, 'mainapp/system.html', {'new_customer': customer})
+        if not id_number.isdigit() or len(id_number) != 9:
+            return render(request, "mainapp/add_customer.html", {
+                "error": "ID Number must be exactly 9 digits.",
+                "username": username
+            })
 
-    return render(request, 'mainapp/add_customer.html')
+        try:
+            customer = Customer.objects.create(
+                first_name=first_name,
+                last_name=last_name,
+                id_number=id_number,
+                created_by=username
+            )
+            request.session['new_customer'] = {
+                "first_name": customer.first_name,
+                "last_name": customer.last_name
+            }
+            return redirect('home')
+        except IntegrityError:
+            return render(request, "mainapp/add_customer.html", {
+                "error": "This ID Number already exists in the system.",
+                "username": username
+            })
+        except Exception as e:
+            return render(request, "mainapp/add_customer.html", {
+                "error": f"Failed to add customer: {str(e)}",
+                "username": username
+            })
+
+    return render(request, "mainapp/add_customer.html", {"username": username})
 
 def customer_list(request):
-    customers = Customer.objects.all()
-    return render(request, 'mainapp/customer_list.html', {'customers': customers})
+    if 'username' not in request.session:
+        return redirect('login')
+
+    username = request.session['username']
+    customers = Customer.objects.filter(created_by=username)
+    return render(request, 'mainapp/customer_list.html', {
+        'customers': customers,
+        'username': username
+    })
 
 def forgot_password(request):
     if request.method == 'POST':
@@ -157,7 +195,7 @@ def forgot_password(request):
             fail_silently=False,
         )
 
-        return redirect('verify_reset_code')  # ✅ שינוי → מעביר ישר למסך הקוד
+        return redirect('verify_reset_code')
 
     return render(request, 'mainapp/forgot_password.html')
 
