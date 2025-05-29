@@ -7,9 +7,14 @@
 
 <form method="POST">
     {% csrf_token %}
-    <input type="text" name="first_name" placeholder="First Name" required><br>
-    <input type="text" name="last_name" placeholder="Last Name" required><br>
-    <input type="text" name="id_number" placeholder="ID Number" required><br>
+    <input type="text" name="first_name" placeholder="First Name" required value="{{ request.POST.first_name }}"><br>
+    <input type="text" name="last_name" placeholder="Last Name" required value="{{ request.POST.last_name }}"><br>
+    <input type="text" name="id_number" placeholder="ID Number" required pattern="\d{9}" title="ID must be exactly 9 digits" value="{{ request.POST.id_number }}">
     <button type="submit">Add Customer</button>
 </form>
+
+{% if error %}
+<p style="color: red;">{{ error }}</p>
+{% endif %}
+
 {% endblock %}
