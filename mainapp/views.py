@@ -13,20 +13,28 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import User, Customer
 from django.db import IntegrityError
+from django.contrib.auth.decorators import login_required
 
 login_attempts = {}
 
-def load_password_config():
-    with open('config.json') as config_file:
-        return json.load(config_file)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+def load_password_config():
+    config_path = os.path.join(BASE_DIR, 'communication_ltd', 'config.json')
+    with open(config_path) as config_file:
+        return json.load(config_file)
+    
 def home(request):
-    username = request.session.get("username")
-    new_customer = request.session.pop("new_customer", None)
-    return render(request, 'mainapp/system.html', {
-        "username": username,
-        "new_customer": new_customer
-    })
+    username = request.session.get('username')
+    new_customer = request.session.pop('new_customer', None) 
+
+    if username:
+        return render(request, 'mainapp/system.html', {
+            'username': username,
+            'new_customer': new_customer
+        })
+    else:
+        return render(request, 'mainapp/home.html')
 
 def is_password_valid(password):
     config = load_password_config()
@@ -126,9 +134,10 @@ def add_customer(request):
         return redirect('login')
 
     if request.method == "POST":
-        first_name = request.POST.get("first_name")
-        last_name = request.POST.get("last_name")
-        id_number = request.POST.get("id_number")
+        # הגנה מ־ XSS 
+        first_name = html.escape(request.POST.get("first_name", ""))
+        last_name = html.escape(request.POST.get("last_name", ""))
+        id_number = request.POST.get("id_number", "")
 
         if not id_number.isdigit() or len(id_number) != 9:
             return render(request, "mainapp/add_customer.html", {
@@ -137,6 +146,7 @@ def add_customer(request):
             })
 
         try:
+            # שימוש ב־Django ORM – בטוח מ־SQL Injection
             customer = Customer.objects.create(
                 first_name=first_name,
                 last_name=last_name,
@@ -166,7 +176,8 @@ def customer_list(request):
         return redirect('login')
 
     username = request.session['username']
-    customers = Customer.objects.filter(created_by=username)
+    customers = Customer.objects.all() 
+
     return render(request, 'mainapp/customer_list.html', {
         'customers': customers,
         'username': username
@@ -248,3 +259,9 @@ def reset_password(request):
         return redirect('login')
 
     return render(request, 'mainapp/reset_password.html')
+
+def user_list(request):
+    if 'username' not in request.session:
+        return redirect('login')
+    users = User.objects.all()
+    return render(request, 'mainapp/user_list.html', {'users': users})

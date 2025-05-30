@@ -4,5 +4,6 @@
     "require_lowercase": true,
     "require_numbers": true,
     "require_special": true,
-    "forbidden_words": ["admin", "password", "123456", "qwerty", "test", "letmein", "welcome", "abc123", "iloveyou", "monkey"]
-}
+    "forbidden_words": ["password", "1234", "admin", "Password"]
+  }
+  

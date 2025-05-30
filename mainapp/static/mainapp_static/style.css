@@ -96,3 +96,9 @@ a.button:hover {
 .system-button:hover {
     background-color: #0056b3;
 }
+
+.success-message {
+    color: green;
+    font-weight: bold;
+    margin-top: 20px;
+}

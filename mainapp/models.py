@@ -1,27 +1,33 @@
 from django.db import models
 
+
 class User(models.Model):
-    username = models.CharField(max_length=100, unique=True)
+    username = models.CharField(max_length=150, unique=True)
     email = models.EmailField()
     salt = models.BinaryField()
-    password_hash = models.CharField(max_length=64)
-
-    previous_password_hash1 = models.CharField(max_length=64, blank=True)
-    previous_password_hash2 = models.CharField(max_length=64, blank=True)
-    previous_password_hash3 = models.CharField(max_length=64, blank=True)
+    password_hash = models.CharField(max_length=256)
+    previous_password_hash1 = models.CharField(max_length=256, blank=True)
+    previous_password_hash2 = models.CharField(max_length=256, blank=True)
+    previous_password_hash3 = models.CharField(max_length=256, blank=True)
 
     def __str__(self):
         return self.username
 
+    class Meta:
+        db_table = 'mainapp_user'
+
 
 class Package(models.Model):
     name = models.CharField(max_length=100)
-    speed = models.CharField(max_length=50)  
+    speed = models.CharField(max_length=50)
     price = models.DecimalField(max_digits=6, decimal_places=2)
-    sector = models.CharField(max_length=50)  
+    sector = models.CharField(max_length=50)
 
     def __str__(self):
         return f"{self.name} ({self.speed})"
+
+    class Meta:
+        db_table = 'mainapp_package'
 
 
 class Customer(models.Model):
@@ -33,3 +39,6 @@ class Customer(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
+    class Meta:
+        db_table = 'mainapp_customer'

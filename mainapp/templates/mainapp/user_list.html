@@ -1,0 +1,26 @@
+{% extends 'mainapp/base.html' %}
+
+{% block title %}User List{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>👥 Registered Users</h2>
+
+    <table class="user-table">
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div style="margin-top: 30px;">
+        <a href="/" class="button">⬅ Back to Home</a>
+    </div>
+</div>
+{% endblock %}
