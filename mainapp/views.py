@@ -17,17 +17,20 @@ from django.contrib.auth.decorators import login_required
 
 login_attempts = {}
 
+def is_username_safe(username):
+    # בדיקה עבור אותיות בעברית, אנגלית, מספרים, קו תחתון, נקודה ומקף
+    return re.match(r'^[\u0590-\u05FFa-zA-Z0-9_.-]+$', username)
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def load_password_config():
     config_path = os.path.join(BASE_DIR, 'communication_ltd', 'config.json')
     with open(config_path) as config_file:
         return json.load(config_file)
-    
+
 def home(request):
     username = request.session.get('username')
-    new_customer = request.session.pop('new_customer', None) 
-
+    new_customer = request.session.pop('new_customer', None)
     if username:
         return render(request, 'mainapp/system.html', {
             'username': username,
@@ -38,34 +41,33 @@ def home(request):
 
 def is_password_valid(password):
     config = load_password_config()
-
     if len(password) < config['password_min_length']:
         return False, f"Password must be at least {config['password_min_length']} characters long."
-
     if config['require_uppercase'] and not re.search(r'[A-Z]', password):
         return False, "Password must contain at least one uppercase letter."
-
     if config['require_lowercase'] and not re.search(r'[a-z]', password):
         return False, "Password must contain at least one lowercase letter."
-
     if config['require_numbers'] and not re.search(r'[0-9]', password):
         return False, "Password must contain at least one number."
-
     if config['require_special'] and not re.search(r'[!@#$%^&*(),.?\":{}|<>]', password):
         return False, "Password must contain at least one special character."
-
     for word in config['forbidden_words']:
         if word.lower() in password.lower():
             return False, f"Password cannot contain forbidden words like '{word}'."
-
     return True, ""
-
 def register(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password1')
-        confirm_password = request.POST.get('password2')
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password1', '')
+        confirm_password = request.POST.get('password2', '')
+
+        # מניעת XSS + אימות קלט
+        username = html.escape(username)
+        email = html.escape(email)
+
+        if not is_username_safe(username):
+            return render(request, 'mainapp/register.html', {'error': 'Username contains invalid characters.'})
 
         if password != confirm_password:
             return render(request, 'mainapp/register.html', {'error': 'Passwords do not match'})
@@ -80,15 +82,18 @@ def register(request):
         salt = os.urandom(16)
         password_hash = hmac.new(salt, password.encode(), hashlib.sha256).hexdigest()
 
-        User.objects.create(
-            username=username,
-            email=email,
-            salt=salt,
-            password_hash=password_hash,
-            previous_password_hash1="",
-            previous_password_hash2="",
-            previous_password_hash3=""
-        )
+        try:
+            User.objects.create(
+                username=username,
+                email=email,
+                salt=salt,
+                password_hash=password_hash,
+                previous_password_hash1="",
+                previous_password_hash2="",
+                previous_password_hash3=""
+            )
+        except Exception as e:
+            return render(request, 'mainapp/register.html', {'error': f'Error: {str(e)}'})
 
         return redirect('login')
 
@@ -96,8 +101,13 @@ def register(request):
 
 def login_user(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+
+        username = html.escape(username)
+
+        if not is_username_safe(username):
+            return render(request, 'mainapp/login.html', {'error': 'Invalid characters in username.'})
 
         now = timezone.now()
 
@@ -127,17 +137,16 @@ def login_user(request):
             return render(request, 'mainapp/login.html', {'error': 'Invalid username or password.'})
 
     return render(request, 'mainapp/login.html')
-
 def add_customer(request):
     username = request.session.get('username')
     if not username:
         return redirect('login')
 
     if request.method == "POST":
-        # הגנה מ־ XSS 
+        # הגנה מ־XSS
         first_name = html.escape(request.POST.get("first_name", ""))
         last_name = html.escape(request.POST.get("last_name", ""))
-        id_number = request.POST.get("id_number", "")
+        id_number = request.POST.get("id_number", "").strip()
 
         if not id_number.isdigit() or len(id_number) != 9:
             return render(request, "mainapp/add_customer.html", {
@@ -146,7 +155,6 @@ def add_customer(request):
             })
 
         try:
-            # שימוש ב־Django ORM – בטוח מ־SQL Injection
             customer = Customer.objects.create(
                 first_name=first_name,
                 last_name=last_name,
@@ -171,21 +179,26 @@ def add_customer(request):
 
     return render(request, "mainapp/add_customer.html", {"username": username})
 
+@login_required
 def customer_list(request):
-    if 'username' not in request.session:
-        return redirect('login')
-
-    username = request.session['username']
-    customers = Customer.objects.all() 
-
+    username = request.session.get('username')
+    customers = Customer.objects.all()
     return render(request, 'mainapp/customer_list.html', {
         'customers': customers,
         'username': username
     })
 
+@login_required
+def user_list(request):
+    users = User.objects.all()
+    return render(request, 'mainapp/user_list.html', {'users': users})
+
 def forgot_password(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
+        username = html.escape(request.POST.get('username', '').strip())
+
+        if not is_username_safe(username):
+            return render(request, 'mainapp/forgot_password.html', {'error': 'Invalid characters in username.'})
 
         try:
             user = User.objects.get(username=username)
@@ -212,8 +225,8 @@ def forgot_password(request):
 
 def verify_reset_code(request):
     if request.method == 'POST':
-        entered_code = request.POST.get('reset_code')
-        saved_code = request.session.get('reset_code')
+        entered_code = request.POST.get('reset_code', '').strip()
+        saved_code = request.session.get('reset_code', '')
 
         if entered_code == saved_code:
             return redirect('reset_password')
@@ -224,9 +237,9 @@ def verify_reset_code(request):
 
 def reset_password(request):
     if request.method == 'POST':
-        new_password1 = request.POST.get('new_password1')
-        new_password2 = request.POST.get('new_password2')
-        username = request.session.get('reset_username')
+        new_password1 = request.POST.get('new_password1', '')
+        new_password2 = request.POST.get('new_password2', '')
+        username = request.session.get('reset_username', '')
 
         if new_password1 != new_password2:
             return render(request, 'mainapp/reset_password.html', {'error': 'Passwords do not match.'})
@@ -259,9 +272,3 @@ def reset_password(request):
         return redirect('login')
 
     return render(request, 'mainapp/reset_password.html')
-
-def user_list(request):
-    if 'username' not in request.session:
-        return redirect('login')
-    users = User.objects.all()
-    return render(request, 'mainapp/user_list.html', {'users': users})

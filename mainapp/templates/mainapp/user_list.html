@@ -13,8 +13,8 @@
         </tr>
         {% for user in users %}
         <tr>
-            <td>{{ user.username }}</td>
-            <td>{{ user.email }}</td>
+            <td>{{ user.username|escape }}</td>
+            <td>{{ user.email|escape }}</td>
         </tr>
         {% endfor %}
     </table>
