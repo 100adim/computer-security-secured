@@ -16,6 +16,10 @@
     </div>
     {% endif %}
 
+    <a href="{% url 'logout' %}" class="btn btn-danger" style="margin-top: 20px;">
+    🔓 Logout
+</a>
+
     <div style="margin-top: 40px;">
         <a href="{% url 'add_customer' %}" class="button">➕ Add Customer</a>
         <a href="{% url 'customer_list' %}" class="system-button">📋 Customer List</a>

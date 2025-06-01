@@ -13,13 +13,13 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import User, Customer
 from django.db import IntegrityError
-from django.contrib.auth.decorators import login_required
+
 
 login_attempts = {}
 
 def is_username_safe(username):
     # בדיקה עבור אותיות בעברית, אנגלית, מספרים, קו תחתון, נקודה ומקף
-    return re.match(r'^[\u0590-\u05FFa-zA-Z0-9_.-]+$', username)
+    return re.match(r'^[\u0590-\u05FFa-zA-Z0-9_.\- ]+$', username)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -179,7 +179,6 @@ def add_customer(request):
 
     return render(request, "mainapp/add_customer.html", {"username": username})
 
-@login_required
 def customer_list(request):
     username = request.session.get('username')
     customers = Customer.objects.all()
@@ -188,10 +187,21 @@ def customer_list(request):
         'username': username
     })
 
-@login_required
 def user_list(request):
     users = User.objects.all()
     return render(request, 'mainapp/user_list.html', {'users': users})
+
+def verify_reset_code(request):
+    if request.method == 'POST':
+        entered_code = request.POST.get('reset_code', '').strip()
+        saved_code = request.session.get('reset_code', '')
+
+        if entered_code == saved_code:
+            return redirect('reset_password')
+        else:
+            return render(request, 'mainapp/verify_reset_code.html', {'error': 'Invalid reset code.'})
+
+    return render(request, 'mainapp/verify_reset_code.html')
 
 def forgot_password(request):
     if request.method == 'POST':
@@ -222,18 +232,6 @@ def forgot_password(request):
         return redirect('verify_reset_code')
 
     return render(request, 'mainapp/forgot_password.html')
-
-def verify_reset_code(request):
-    if request.method == 'POST':
-        entered_code = request.POST.get('reset_code', '').strip()
-        saved_code = request.session.get('reset_code', '')
-
-        if entered_code == saved_code:
-            return redirect('reset_password')
-        else:
-            return render(request, 'mainapp/verify_reset_code.html', {'error': 'Invalid reset code.'})
-
-    return render(request, 'mainapp/verify_reset_code.html')
 
 def reset_password(request):
     if request.method == 'POST':
@@ -272,3 +270,7 @@ def reset_password(request):
         return redirect('login')
 
     return render(request, 'mainapp/reset_password.html')
+
+def logout_user(request):
+    request.session.flush()
+    return redirect('home')
