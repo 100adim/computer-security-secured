@@ -3,7 +3,7 @@
 {% block title %}User List{% endblock %}
 
 {% block content %}
-<div class="form-container">
+<div class="form-box">
     <h2>👥 Registered Users</h2>
 
     <table class="user-table">
@@ -20,7 +20,7 @@
     </table>
 
     <div style="margin-top: 30px;">
-        <a href="/" class="button">⬅ Back to Home</a>
+        <a href="{% url 'home' %}" class="back-button">← Back to Home</a>
     </div>
 </div>
 {% endblock %}

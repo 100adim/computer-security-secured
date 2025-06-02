@@ -3,11 +3,11 @@
 {% block title %}System{% endblock %}
 
 {% block content %}
-<div style="text-align: center; padding: 50px;">
+<div class="form-box">
     <h1>Welcome to the system</h1>
 
     {% if username %}
-        <p>Hello, {{ username }}!</p>
+        <p>Hello, {{ username|title }}!</p>
     {% endif %}
 
     {% if new_customer %}

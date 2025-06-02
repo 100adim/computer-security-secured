@@ -1,23 +1,20 @@
 {% extends 'mainapp/base.html' %}
 
-{% block title %}Communication LTD - Add Customer{% endblock %}
+{% block title %}Add Customer{% endblock %}
 
 {% block content %}
-<h1>Add New Customer</h1>
+<div class="form-box">
+    <h1>Add New Customer</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="first_name" placeholder="First Name" required>
+        <input type="text" name="last_name" placeholder="Last Name" required>
+        <input type="text" name="id_number" placeholder="ID Number" required pattern="\d{9}" title="ID must be 9 digits">
+        <button type="submit">Add Customer</button>
+    </form>
 
-
-<form method="POST">
-    {% csrf_token %}
-    <input type="text" name="first_name" placeholder="First Name" required value="{{ request.POST.first_name }}"><br>
-    <input type="text" name="last_name" placeholder="Last Name" required value="{{ request.POST.last_name }}"><br>
-    <input type="text" name="id_number" placeholder="ID Number" required pattern="\d{9}" title="ID must be exactly 9 digits" value="{{ request.POST.id_number }}">
-    <button type="submit">Add Customer</button>
-</form>
-
-{% if error %}
-<p style="color: red;">{{ error }}</p>
-{% endif %}
-<a href="{% url 'home' %}" class="back-button">← Back to Home</a>
-
-
+    <div style="margin-top: 20px;">
+        <a href="{% url 'home' %}" class="back-button">← Back to Home</a>
+    </div>
+</div>
 {% endblock %}

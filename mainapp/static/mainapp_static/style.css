@@ -11,8 +11,8 @@
 
 .user-table th,
 .user-table td {
-    padding: 20px 30px;
-    font-size: 20px;
+    padding: 12px 20px;
+    font-size: 16px;  
     text-align: center;
 }
 
@@ -63,4 +63,56 @@
 
 .system-button:hover {
     background-color: #0056b3;
+}
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+}
+
+/* תיבת טופס מעוצבת */
+.form-box {
+    background-color: #cfe8fc;
+    max-width: 700px;          
+    margin: 80px auto;
+    padding: 50px 60px;        
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.15);
+    text-align: center;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+}
+
+button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
