@@ -1,104 +1,66 @@
-body {
-    background-color: #f0f2f5;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    height: 100vh;
+/* טבלת משתמשים */
+.user-table {
+    margin: auto;
+    border-collapse: collapse;
+    width: 80%;
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-.form-container {
-    background: rgba(178, 219, 243, 0.9);
-    width: 90%;
-    max-width: 800px;
-    height: 70vh;
-    margin: 5% auto;
-    padding: 70px;
-    border-radius: 20px;
-    box-shadow: 0 0 40px rgba(0,0,0,0.2);
+.user-table th,
+.user-table td {
+    padding: 20px 30px;
+    font-size: 20px;
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 
-h1 {
-    color: #343a40;
-    font-size: 54px;
-    margin-bottom: 46px;
-    line-height: 1.2;
-    white-space: nowrap;
+.user-table tbody tr:not(:last-child) td {
+    border-bottom: 2px solid #252222;
 }
 
-p {
-    color: #333;
-    font-size: 18px;
-    margin-bottom: 30px;
-}
 
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-    width: 100%;
-    padding: 14px;
-    margin: 12px 0;
-    font-size: 18px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-}
-
-button,
-a.button {
-    display: inline-block;
+.user-table th {
     background-color: #007bff;
     color: white;
-    padding: 14px 28px;
-    margin: 12px 6px;
-    border: none;
+}
+
+.user-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* כפתור חזרה */
+.back-button {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 24px;
+    background-color: #007bff;
+    color: white;
     border-radius: 8px;
-    font-size: 18px;
-    cursor: pointer;
     text-decoration: none;
     font-weight: bold;
     transition: background-color 0.3s ease;
 }
 
-button:hover,
-a.button:hover {
+.back-button:hover {
     background-color: #0056b3;
 }
 
-.link {
-    display: inline-block;
-    color: #007bff;
-    font-size: 16px;
-    margin-top: 20px;
-    text-decoration: none;
-}
-
-.link:hover {
-    text-decoration: underline;
-}
-
-/* כפתורים במסך system.html */
+/* כפתורים במערכת */
 .system-button {
     display: inline-block;
+    margin: 10px;
+    padding: 12px 24px;
     background-color: #007bff;
     color: white;
-    padding: 14px 28px;
-    margin: 20px 10px;
+    border: none;
+    border-radius: 8px;
     text-decoration: none;
-    border-radius: 10px;
-    font-size: 20px;
     font-weight: bold;
     transition: background-color 0.3s ease;
 }
 
 .system-button:hover {
     background-color: #0056b3;
-}
-
-.success-message {
-    color: green;
-    font-weight: bold;
-    margin-top: 20px;
 }

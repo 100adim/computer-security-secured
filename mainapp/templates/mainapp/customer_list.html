@@ -1,15 +1,32 @@
 {% extends 'mainapp/base.html' %}
 
-{% block title %}Communication LTD - Customer List{% endblock %}
+{% block title %}Customer List{% endblock %}
 
 {% block content %}
-<h1>Customer List</h1>
+<div style="text-align: center; padding: 250px;">
+    <h1> Customer List  </h1>
 
-<ul>
-    {% for customer in customers %}
-        <li>{{ customer.first_name }} {{ customer.last_name }} - {{ customer.id_number }}</li>
-    {% empty %}
-        <li>No customers found.</li>
-    {% endfor %}
-</ul>
+    <table class="user-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Customer Name  </th>
+                <th>ID  </th>
+                <th>Created By </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ customer.first_name  }} {{ customer.last_name }}</td>
+                <td>{{ customer.id_number   }}</td>
+                <td>{{ customer.created_by  }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'home' %}" class="back-button">← Back to Home</a>
+</div>
 {% endblock %}

@@ -5,6 +5,7 @@
 {% block content %}
 <h1>Add New Customer</h1>
 
+
 <form method="POST">
     {% csrf_token %}
     <input type="text" name="first_name" placeholder="First Name" required value="{{ request.POST.first_name }}"><br>
@@ -16,5 +17,7 @@
 {% if error %}
 <p style="color: red;">{{ error }}</p>
 {% endif %}
+<a href="{% url 'home' %}" class="back-button">← Back to Home</a>
+
 
 {% endblock %}

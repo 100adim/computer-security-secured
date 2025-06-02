@@ -11,19 +11,20 @@
     {% endif %}
 
     {% if new_customer %}
-    <div class="success-message">
-        New customer added: {{ new_customer.first_name }} {{ new_customer.last_name }}
-    </div>
+        <div class="success-message">
+            ✅ New customer added: {{ new_customer.first_name }} {{ new_customer.last_name }}
+        </div>
     {% endif %}
 
-    <a href="{% url 'logout' %}" class="btn btn-danger" style="margin-top: 20px;">
-    🔓 Logout
-</a>
+    <a href="{% url 'logout' %}" class="system-button" style="margin-top: 20px;">
+        🔓 Logout
+    </a>
 
     <div style="margin-top: 40px;">
-        <a href="{% url 'add_customer' %}" class="button">➕ Add Customer</a>
+        <a href="{% url 'add_customer' %}" class="system-button">➕ Add Customer</a>
         <a href="{% url 'customer_list' %}" class="system-button">📋 Customer List</a>
         <a href="{% url 'user_list' %}" class="system-button">👥 View User List</a>
+        <a href="{% url 'change_password' %}" class="system-button">🔐 Change Password</a>
     </div>
 </div>
 {% endblock %}

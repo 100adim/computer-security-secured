@@ -39,7 +39,7 @@ def home(request):
     else:
         return render(request, 'mainapp/home.html')
 
-def is_password_valid(password):
+def is_password_valid(password, previous_hashes=None):
     config = load_password_config()
     if len(password) < config['password_min_length']:
         return False, f"Password must be at least {config['password_min_length']} characters long."
@@ -54,7 +54,12 @@ def is_password_valid(password):
     for word in config['forbidden_words']:
         if word.lower() in password.lower():
             return False, f"Password cannot contain forbidden words like '{word}'."
+    if previous_hashes:
+        new_hash = hashlib.sha256(password.encode()).hexdigest()
+        if new_hash in previous_hashes:
+            return False, "Password must be different from your previous passwords."
     return True, ""
+
 def register(request):
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -110,6 +115,8 @@ def login_user(request):
             return render(request, 'mainapp/login.html', {'error': 'Invalid characters in username.'})
 
         now = timezone.now()
+        config = load_password_config()
+        max_attempts = config.get('max_login_attempts', 3)
 
         if username in login_attempts:
             attempts, lock_until = login_attempts[username]
@@ -131,12 +138,13 @@ def login_user(request):
         else:
             attempts, lock_until = login_attempts.get(username, (0, None))
             attempts += 1
-            if attempts >= 3:
+            if attempts >= max_attempts:
                 lock_until = now + timedelta(minutes=30)
             login_attempts[username] = (attempts, lock_until)
             return render(request, 'mainapp/login.html', {'error': 'Invalid username or password.'})
 
     return render(request, 'mainapp/login.html')
+
 def add_customer(request):
     username = request.session.get('username')
     if not username:
@@ -268,6 +276,47 @@ def reset_password(request):
         user.save()
 
         return redirect('login')
+
+    return render(request, 'mainapp/reset_password.html')
+
+def change_password(request):
+    username = request.session.get('username', '')
+    if not username:
+        return redirect('login')
+
+    if request.method == 'POST':
+        new_password1 = request.POST.get('new_password1', '')
+        new_password2 = request.POST.get('new_password2', '')
+
+        if new_password1 != new_password2:
+            return render(request, 'mainapp/reset_password.html', {'error': 'Passwords do not match.'})
+
+        is_valid, error_message = is_password_valid(new_password1)
+        if not is_valid:
+            return render(request, 'mainapp/reset_password.html', {'error': error_message})
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return render(request, 'mainapp/reset_password.html', {'error': 'User not found.'})
+
+        new_password_hash_check = hmac.new(user.salt, new_password1.encode(), hashlib.sha256).hexdigest()
+        previous_hashes = [user.password_hash, user.previous_password_hash1, user.previous_password_hash2, user.previous_password_hash3]
+        if new_password_hash_check in previous_hashes:
+            return render(request, 'mainapp/reset_password.html', {'error': 'New password must be different from the last 3 passwords.'})
+
+        user.previous_password_hash3 = user.previous_password_hash2
+        user.previous_password_hash2 = user.previous_password_hash1
+        user.previous_password_hash1 = user.password_hash
+
+        new_salt = os.urandom(16)
+        new_password_hash = hmac.new(new_salt, new_password1.encode(), hashlib.sha256).hexdigest()
+
+        user.salt = new_salt
+        user.password_hash = new_password_hash
+        user.save()
+
+        return redirect('home')
 
     return render(request, 'mainapp/reset_password.html')
 
