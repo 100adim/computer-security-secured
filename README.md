@@ -14,7 +14,6 @@
 - [🏗️ Architecture](#️-architecture)
 - [🚀 Quick Start](#-quick-start)
 - [🔐 Security Features](#-security-features)
-- [🚨 Vulnerability Demonstrations](#-vulnerability-demonstrations)
 - [📖 Detailed Setup](#-detailed-setup)
 - [🎮 Usage Guide](#-usage-guide)
 - [🧪 Testing Security](#-testing-security)
