@@ -188,24 +188,6 @@ if attempts >= max_attempts:
 
 ---
 
-## 🚨 **Vulnerability Demonstrations**
-
-### **🎯 Part B: Educational Security Testing**
-
-This project includes **two versions** for educational purposes:
-
-#### **🔒 Version 1: Secure Implementation** (`views.py`)
-- ✅ XSS Protection with `html.escape()`
-- ✅ SQL Injection prevention using Django ORM
-- ✅ Input validation and sanitization
-- ✅ CSRF protection enabled
-
-#### **🚨 Version 2: Vulnerable Implementation** (`views_vulnerable.py`)
-- ❌ No XSS protection
-- ❌ Raw SQL queries vulnerable to injection
-- ❌ Minimal input validation
-- 🎯 Perfect for security testing
-
 ### **💉 SQL Injection Demonstrations**
 
 #### **Attack Examples:**
