@@ -205,12 +205,13 @@ def verify_reset_code(request):
         saved_code = request.session.get('reset_code', '')
 
         if entered_code == saved_code:
-            return redirect('reset_password')
+            return redirect('reset_password')  
         else:
-            return render(request, 'mainapp/verify_reset_code.html', {'error': 'Invalid reset code.'})
+            return render(request, 'mainapp/verify_reset_code.html', {
+                'error': 'Invalid reset code.'
+            })
 
-    return render(request, 'mainapp/verify_reset_code.html')
-
+    return render(request, 'mainapp/verify_reset_code.html')  
 def forgot_password(request):
     if request.method == 'POST':
         username = html.escape(request.POST.get('username', '').strip())
@@ -277,7 +278,7 @@ def reset_password(request):
 
         return redirect('login')
 
-    return render(request, 'mainapp/reset_password.html')
+    return render(request, 'mainapp/reset_password.html', {'show_current_password': False})
 
 def change_password(request):
     username = request.session.get('username', '')
@@ -285,25 +286,45 @@ def change_password(request):
         return redirect('login')
 
     if request.method == 'POST':
+        current_password = request.POST.get('current_password', '')
         new_password1 = request.POST.get('new_password1', '')
         new_password2 = request.POST.get('new_password2', '')
-
-        if new_password1 != new_password2:
-            return render(request, 'mainapp/reset_password.html', {'error': 'Passwords do not match.'})
-
-        is_valid, error_message = is_password_valid(new_password1)
-        if not is_valid:
-            return render(request, 'mainapp/reset_password.html', {'error': error_message})
 
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            return render(request, 'mainapp/reset_password.html', {'error': 'User not found.'})
+            return render(request, 'mainapp/change_password.html', {
+                'error': 'User not found.'
+            })
+
+        current_password_hash = hmac.new(user.salt, current_password.encode(), hashlib.sha256).hexdigest()
+        if current_password_hash != user.password_hash:
+            return render(request, 'mainapp/change_password.html', {
+                'error': 'Incorrect current password.'
+            })
+
+        if new_password1 != new_password2:
+            return render(request, 'mainapp/change_password.html', {
+                'error': 'Passwords do not match.'
+            })
+
+        is_valid, error_message = is_password_valid(new_password1)
+        if not is_valid:
+            return render(request, 'mainapp/change_password.html', {
+                'error': error_message
+            })
 
         new_password_hash_check = hmac.new(user.salt, new_password1.encode(), hashlib.sha256).hexdigest()
-        previous_hashes = [user.password_hash, user.previous_password_hash1, user.previous_password_hash2, user.previous_password_hash3]
+        previous_hashes = [
+            user.password_hash,
+            user.previous_password_hash1,
+            user.previous_password_hash2,
+            user.previous_password_hash3
+        ]
         if new_password_hash_check in previous_hashes:
-            return render(request, 'mainapp/reset_password.html', {'error': 'New password must be different from the last 3 passwords.'})
+            return render(request, 'mainapp/change_password.html', {
+                'error': 'New password must be different from the last 3 passwords.'
+            })
 
         user.previous_password_hash3 = user.previous_password_hash2
         user.previous_password_hash2 = user.previous_password_hash1
@@ -318,7 +339,7 @@ def change_password(request):
 
         return redirect('home')
 
-    return render(request, 'mainapp/reset_password.html')
+    return render(request, 'mainapp/change_password.html')
 
 def logout_user(request):
     request.session.flush()
