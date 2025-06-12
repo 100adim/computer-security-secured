@@ -369,30 +369,6 @@ admin' OR '1'='1' --
 -- Expected result: "Invalid characters in username"
 ```
 
-### **🚨 Vulnerability Testing (Educational)**
-
-#### **Switch to Vulnerable Version:**
-1. Rename `views.py` to `views_secure.py`
-2. Rename `views_vulnerable.py` to `views.py`
-3. Restart server
-4. Now attacks will work for demonstration
-
-#### **XSS Attack Demo:**
-```html
-<!-- Enter in customer name -->
-<script>alert('XSS Attack Successful!');</script>
-
-<!-- Result: Alert popup appears -->
-```
-
-#### **SQL Injection Demo:**
-```sql
--- Username field
-admin' OR '1'='1' --
-
--- Result: Bypass login without password -->
-```
-
 ---
 
 ## 📚 **API Documentation**
